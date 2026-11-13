@@ -1,0 +1,189 @@
+import pygame
+
+pygame.init()
+
+# Set screen resolution
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1020
+
+# Create the game window
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Simple Maze Game")
+
+# Set up colours
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (50,50,50)
+BLUE = (50,50,50)
+GREEN = (50,50,50)
+
+
+# Set up the player
+player_x = 30
+player_y = 30
+
+player_x2 = 1860
+player_y2 = 960
+
+player_width = 25
+player_length = 100
+
+speed = 7
+ballspeed = 7
+ball_y_speed = 7  # Added vertical speed for the ball
+
+ball_x = 1000
+ball_y = 500
+
+# Create the exit
+exit_rect = pygame.Rect(0, 0, 1, 30)
+
+# Create the maze walls
+walls = [
+    pygame.Rect(100, 0, 20, 300),
+    pygame.Rect(200, 100, 20, 300),
+    pygame.Rect(300, 0, 20, 250),
+    pygame.Rect(400, 100, 20, 300),
+    pygame.Rect(500, 0, 20, 250)
+]
+
+# Set up the game
+clock = pygame.time.Clock()
+running = True
+won = False
+
+# Main game loop
+while running:
+
+    # Check for events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Get the keys being pressed
+    keys = pygame.key.get_pressed()
+
+    if not won:
+
+        # Move up
+        if keys[pygame.K_UP]:
+            player_y2 -= speed
+            player_rect2 = pygame.Rect(player_x2, player_y2, player_width, player_length)
+
+            for wall in walls:
+                if player_rect2.colliderect(wall):
+                    player_y2 += speed
+
+        # Move down
+        if keys[pygame.K_DOWN]:
+            player_y2 += speed
+            player_rect2 = pygame.Rect(player_x2, player_y2, player_width, player_length)
+
+            for wall in walls:
+                if player_rect2.colliderect(wall):
+                    player_y2 -= speed
+
+        #player 2 up
+        if keys[pygame.K_w]:
+            player_y -= speed
+            player_rect1 = pygame.Rect(player_x, player_y, player_width, player_length)
+            
+            for wall in walls:
+                if player_rect1.colliderect(wall):
+                    player_y += speed
+
+        #player 2 down
+        if keys[pygame.K_s]:
+            player_y += speed
+            player_rect1 = pygame.Rect(player_x, player_y, player_width, player_length)
+            
+            for wall in walls:
+                if player_rect1.colliderect(wall):
+                    player_y -= speed
+
+        # Update player rectangles for collisions
+        player = pygame.Rect(player_x, player_y, player_width, player_length)
+        player2 = pygame.Rect(player_x2, player_y2, player_width, player_length)
+
+        # Ball movement
+        ball_x += ballspeed
+        ball_y += ball_y_speed
+
+        # Create ball rect for collision detection (ball is drawn with radius 15, so size is 30x30 centered roughly)
+        ball_rect = pygame.Rect(ball_x - 15, ball_y - 15, 30, 30)
+
+        # Bounce off player paddles
+        if ball_rect.colliderect(player) or ball_rect.colliderect(player2):
+            ballspeed = -ballspeed  # Reverse horizontal direction
+
+        # Keep the player inside the screen
+        if player_x < 0:
+            player_x = 0
+
+        if player_x > SCREEN_WIDTH - player_width:
+            player_x = SCREEN_WIDTH - player_width
+
+        if player_y < 0:
+            player_y = 0
+
+        if player_y > SCREEN_HEIGHT - player_length:
+            player_y = SCREEN_HEIGHT - player_length
+
+        #Player 2 inside the screen
+
+        if player_x2 < 0:
+            player_x2 = 0
+
+        if player_x2 > SCREEN_WIDTH - player_width:
+            player_x2 = SCREEN_WIDTH - player_width
+
+        if player_y2 < 0:
+            player_y2 = 0
+
+        if player_y2 > SCREEN_HEIGHT - player_length:
+            player_y2 = SCREEN_HEIGHT - player_length
+
+        #ball bouncing (inside the screen boundaries)
+        if ball_x - 15 < 0:
+            ballspeed = -ballspeed
+
+        if ball_x + 15 > SCREEN_WIDTH:
+            ballspeed = -ballspeed
+
+        if ball_y - 15 < 0:
+            ball_y_speed = -ball_y_speed
+
+        if ball_y + 15 > SCREEN_HEIGHT:
+            ball_y_speed = -ball_y_speed
+
+        # Check if the player reaches the exit
+        if player.colliderect(exit_rect):
+            won = True
+
+    # Draw the background
+    screen.fill(BLACK)
+
+    # Draw the exit
+    pygame.draw.rect(screen, GREEN, exit_rect)
+
+    # Draw the players
+    pygame.draw.rect(screen, WHITE, player)
+    pygame.draw.rect(screen, WHITE, player2)
+    
+    # Draw the ball
+    pygame.draw.circle(screen, WHITE, (ball_x, ball_y), 15)
+    
+    # Display the winning message
+    if won:
+        font = pygame.font.SysFont(None, 48)
+        message = font.render("YOU WIN!", True, BLACK)
+        screen.blit(message, (220, 180))
+
+    # Update the display
+    pygame.display.flip()
+
+    # Limit the game to 60 FPS
+    clock.tick(60)
+
+# Close Pygame
+pygame.quit()
