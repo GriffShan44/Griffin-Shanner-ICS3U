@@ -1,3 +1,4 @@
+
 import pygame
 
 pygame.init()
@@ -13,9 +14,9 @@ pygame.display.set_caption("Simple Maze Game")
 # Set up colours
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-RED = (50,50,50)
-BLUE = (50,50,50)
-GREEN = (50,50,50)
+RED = (50, 50, 50)
+BLUE = (50, 50, 50)
+GREEN = (50, 50, 50)
 
 
 # Set up the player
@@ -30,7 +31,7 @@ player_length = 100
 
 speed = 7
 ballspeed = 7
-ball_y_speed = 7  # Added vertical speed for the ball
+ball_y_speed = 7
 
 ball_x = 1000
 ball_y = 500
@@ -83,20 +84,20 @@ while running:
                 if player_rect2.colliderect(wall):
                     player_y2 -= speed
 
-        #player 2 up
+        # Player 1 up
         if keys[pygame.K_w]:
             player_y -= speed
             player_rect1 = pygame.Rect(player_x, player_y, player_width, player_length)
-            
+
             for wall in walls:
                 if player_rect1.colliderect(wall):
                     player_y += speed
 
-        #player 2 down
+        # Player 1 down
         if keys[pygame.K_s]:
             player_y += speed
             player_rect1 = pygame.Rect(player_x, player_y, player_width, player_length)
-            
+
             for wall in walls:
                 if player_rect1.colliderect(wall):
                     player_y -= speed
@@ -109,12 +110,15 @@ while running:
         ball_x += ballspeed
         ball_y += ball_y_speed
 
-        # Create ball rect for collision detection (ball is drawn with radius 15, so size is 30x30 centered roughly)
+        # Create ball rect for collision detection
         ball_rect = pygame.Rect(ball_x - 15, ball_y - 15, 30, 30)
 
         # Bounce off player paddles
-        if ball_rect.colliderect(player) or ball_rect.colliderect(player2):
-            ballspeed = -ballspeed  # Reverse horizontal direction
+        if ball_rect.colliderect(player) and ballspeed < 0:
+            ballspeed = -ballspeed
+
+        if ball_rect.colliderect(player2) and ballspeed > 0:
+            ballspeed = -ballspeed
 
         # Keep the player inside the screen
         if player_x < 0:
@@ -129,8 +133,7 @@ while running:
         if player_y > SCREEN_HEIGHT - player_length:
             player_y = SCREEN_HEIGHT - player_length
 
-        #Player 2 inside the screen
-
+        # Player 2 inside the screen
         if player_x2 < 0:
             player_x2 = 0
 
@@ -143,7 +146,7 @@ while running:
         if player_y2 > SCREEN_HEIGHT - player_length:
             player_y2 = SCREEN_HEIGHT - player_length
 
-        #ball bouncing (inside the screen boundaries)
+        # Ball bouncing (inside the screen boundaries)
         if ball_x - 15 < 0:
             ballspeed = -ballspeed
 
@@ -169,10 +172,10 @@ while running:
     # Draw the players
     pygame.draw.rect(screen, WHITE, player)
     pygame.draw.rect(screen, WHITE, player2)
-    
+
     # Draw the ball
     pygame.draw.circle(screen, WHITE, (ball_x, ball_y), 15)
-    
+
     # Display the winning message
     if won:
         font = pygame.font.SysFont(None, 48)
